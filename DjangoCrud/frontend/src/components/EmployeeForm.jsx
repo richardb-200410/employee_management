@@ -12,6 +12,7 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
         employee_contact: '',
         employee_address: '',
     });
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (employeeToEdit) {
@@ -22,10 +23,15 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+        // Clear error when user starts typing again
+        if (errors[name]) {
+            setErrors({ ...errors, [name]: null });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrors({});
         try {
             if (employeeToEdit) {
                 await api.updateEmployee(employeeToEdit.id, formData);
@@ -35,8 +41,19 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
             onSave();
         } catch (error) {
             console.error('Error saving employee:', error);
-            alert('Something went wrong. Please verify your input.');
+            if (error.response && error.response.data) {
+                setErrors(error.response.data);
+            } else {
+                alert('Something went wrong. Please verify your input.');
+            }
         }
+    };
+
+    const renderError = (field) => {
+        if (errors[field]) {
+            return <span className="error-message">{errors[field][0]}</span>;
+        }
+        return null;
     };
 
     return (
@@ -52,8 +69,10 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
                             placeholder="e.g. EMP-101"
                             value={formData.employee_id}
                             onChange={handleChange}
+                            className={errors.employee_id ? 'input-error' : ''}
                             required
                         />
+                        {renderError('employee_id')}
                     </div>
                     <div className="form-field">
                         <label>Full Name</label>
@@ -63,8 +82,10 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
                             placeholder="John Doe"
                             value={formData.employee_name}
                             onChange={handleChange}
+                            className={errors.employee_name ? 'input-error' : ''}
                             required
                         />
+                        {renderError('employee_name')}
                     </div>
                     <div className="form-field">
                         <label>Email Address</label>
@@ -74,19 +95,23 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
                             placeholder="john@example.com"
                             value={formData.employee_email}
                             onChange={handleChange}
+                            className={errors.employee_email ? 'input-error' : ''}
                             required
                         />
+                        {renderError('employee_email')}
                     </div>
                     <div className="form-field">
                         <label>Contact Number</label>
                         <input
                             type="text"
                             name="employee_contact"
-                            placeholder="+1 234 567 890"
+                            placeholder="+91 98765 43210"
                             value={formData.employee_contact}
                             onChange={handleChange}
+                            className={errors.employee_contact ? 'input-error' : ''}
                             required
                         />
+                        {renderError('employee_contact')}
                     </div>
                     <div className="form-field">
                         <label>Residential Address</label>
@@ -95,8 +120,10 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
                             placeholder="123 Modern Lane, Tech City"
                             value={formData.employee_address}
                             onChange={handleChange}
+                            className={errors.employee_address ? 'input-error' : ''}
                             required
                         />
+                        {renderError('employee_address')}
                     </div>
                     <div className="modal-footer">
                         <button type="button" onClick={onCancel} className="btn-cancel">Cancel</button>

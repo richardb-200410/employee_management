@@ -45,7 +45,6 @@ function App() {
 
   const toggleTheme = () => {
     setIsDarkMode(prevMode => !prevMode);
-    document.body.classList.toggle('dark-mode');
   };
 
   return (
