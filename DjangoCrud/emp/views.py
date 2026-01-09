@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Employee
-from .serializers import EmployeeSerializer
+from .models import Employee, Department
+from .serializers import EmployeeSerializer, DepartmentSerializer
 
 # Create your API views here.
 
@@ -86,3 +86,15 @@ def delete_employee(request, pk):
     employee.delete()
     # Return a success message
     return Response({"message": "Employee deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def department_list(request):
+    """
+    List all departments.
+    Method: GET
+    Endpoint: /emp/departments/
+    """
+    departments = Department.objects.all()
+    serializer = DepartmentSerializer(departments, many=True)
+    return Response(serializer.data)

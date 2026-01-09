@@ -11,12 +11,29 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
         employee_email: '',
         employee_contact: '',
         employee_address: '',
+        department: '', // Added department field
     });
+    const [departments, setDepartments] = useState([]); // State for department list
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
+        // Fetch departments for the dropdown
+        const fetchDepartments = async () => {
+            try {
+                const response = await api.getDepartments();
+                setDepartments(response.data);
+            } catch (error) {
+                console.error('Error fetching departments:', error);
+            }
+        };
+        fetchDepartments();
+
         if (employeeToEdit) {
-            setFormData(employeeToEdit);
+            // If editing, map the department object/id to the form field
+            setFormData({
+                ...employeeToEdit,
+                department: employeeToEdit.department || '',
+            });
         }
     }, [employeeToEdit]);
 
@@ -112,6 +129,23 @@ const EmployeeForm = ({ employeeToEdit, onSave, onCancel }) => {
                             required
                         />
                         {renderError('employee_contact')}
+                    </div>
+                    <div className="form-field">
+                        <label>Department</label>
+                        <select
+                            name="department"
+                            value={formData.department}
+                            onChange={handleChange}
+                            className={errors.department ? 'input-error' : ''}
+                        >
+                            <option value="">Select Department</option>
+                            {departments.map((dept) => (
+                                <option key={dept.id} value={dept.id}>
+                                    {dept.department_name}
+                                </option>
+                            ))}
+                        </select>
+                        {renderError('department')}
                     </div>
                     <div className="form-field">
                         <label>Residential Address</label>
